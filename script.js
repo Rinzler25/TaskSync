@@ -1,159 +1,131 @@
-let tipoActual = ''; 
-
-// --- 1. CARGA INICIAL ---
-window.onload = function() {
+window.addEventListener('load', () => {
     cargarDatosGuardados();
     generarDiasCalendario();
-};
+});
 
-// --- 2. NAVEGACIÓN ---
 function showView(viewId) {
-    // Ocultar todas las vistas
-    const views = document.querySelectorAll('.view');
-    views.forEach(v => v.classList.remove('active'));
-
-    // Mostrar la seleccionada
-    const view = document.getElementById(viewId);
-    if (view) {
-        view.classList.add('active');
-        window.scrollTo(0,0);
-    }
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    const target = document.getElementById(viewId);
+    if(target) target.classList.add('active');
 }
 
-// --- 3. GESTIÓN DEL MODAL ---
-function abrirModal(tipo) {
-    tipoActual = tipo;
-    const modal = document.getElementById("modalGenerico");
-    const titulo = document.getElementById("tituloModal");
-    if (modal && titulo) {
-        titulo.innerText = tipo === 'proyecto' ? "Nuevo Proyecto" : "Nueva Tarea";
-        modal.style.display = "flex";
-    }
+function abrirModal() {
+    document.getElementById("modalGenerico").style.display = "flex";
 }
 
 function cerrarModal() {
     document.getElementById("modalGenerico").style.display = "none";
 }
 
-// --- 4. PERSISTENCIA Y DATOS ---
 function guardarDatos() {
     const nombre = document.getElementById("nombreEntrada").value;
     const entrega = document.getElementById("fechaEntregaEntrada").value;
+    const tipo = document.getElementById("tipoEntrada").value;
     const inicio = new Date().toISOString().split('T')[0];
 
-    if (!nombre || !entrega) return alert("Por favor, completa los campos.");
+    if (!nombre || !entrega) return alert("Completa los campos obligatorios");
 
-    const nuevoItem = { 
-        nombre, 
-        inicio, 
-        entrega, 
-        tipo: tipoActual,
-        terminado: false 
-    };
+    const nuevoItem = { nombre, inicio, entrega, tipo, terminado: false };
+    let datos = JSON.parse(localStorage.getItem("TaskSyncData")) || [];
+    datos.push(nuevoItem);
+    localStorage.setItem("TaskSyncData", JSON.stringify(datos));
 
-    salvarEnLocalStorage(nuevoItem);
-    
-    // Limpiar y cerrar
+    // Resetear y cerrar
     document.getElementById("nombreEntrada").value = "";
+    document.getElementById("fechaEntregaEntrada").value = "";
     cerrarModal();
-    
-    // Actualizar vistas y mandarnos a ver el progreso
-    cargarDatosGuardados();
+    cargarDatosGuardados(); 
+    generarDiasCalendario();
     showView('status-view');
 }
 
-function salvarEnLocalStorage(item) {
-    let datos = JSON.parse(localStorage.getItem("TaskSyncData")) || [];
-    datos.push(item);
-    localStorage.setItem("TaskSyncData", JSON.stringify(datos));
-}
-
 function cargarDatosGuardados() {
-    const contenedorEstado = document.getElementById("active-projects-list");
-    const contenedorHistorial = document.getElementById("history-list");
-    
-    if (!contenedorEstado || !contenedorHistorial) return;
+    const contEstado = document.getElementById("active-projects-list");
+    const contHistorial = document.getElementById("history-list");
+    if (!contEstado || !contHistorial) return;
 
-    contenedorEstado.innerHTML = "";
-    contenedorHistorial.innerHTML = "";
+    contEstado.innerHTML = "";
+    contHistorial.innerHTML = "";
 
     let datos = JSON.parse(localStorage.getItem("TaskSyncData")) || [];
     
     datos.forEach((item, index) => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.setAttribute('data-tipo', item.tipo);
+
+        div.innerHTML = `
+            <div style="display:flex; justify-content: space-between; align-items:center">
+                <h4 style="margin:0">${item.nombre} <small>(${item.tipo})</small></h4>
+                ${!item.terminado ? `<input type="checkbox" onclick="finalizar(${index})">` : '✅'}
+            </div>
+            <p style="font-size:12px; color:gray; margin:5px 0">Entrega: ${item.entrega}</p>
+            <div class="progress-container">
+                <div id="bar-${index}" class="progress-fill"></div>
+            </div>
+        `;
+
         if (item.terminado) {
-            renderizarTarjeta(item, index, contenedorHistorial);
+            div.style.opacity = "0.6";
+            contHistorial.appendChild(div);
         } else {
-            renderizarTarjeta(item, index, contenedorEstado);
+            contEstado.appendChild(div);
         }
+        
+        setTimeout(() => setProgreso(`bar-${index}`, item.inicio, item.entrega), 100);
     });
 }
 
-// --- 5. RENDERIZADO DE COMPONENTES ---
-function renderizarTarjeta(item, index, contenedor) {
-    const idBarra = "bar-" + index;
-    const div = document.createElement("div");
-    div.className = "card";
-    
-    // Si es del historial, le bajamos la opacidad
-    if (item.terminado) div.style.opacity = "0.7";
-
-    div.innerHTML = `
-        <div class="card-body">
-            <div style="display:flex; justify-content: space-between; align-items: center;">
-                <h3 style="margin:0">${item.nombre}</h3>
-                ${!item.terminado ? `<input type="checkbox" onclick="finalizarElemento(${index})">` : '✅'}
-            </div>
-            <p><small>Entrega: ${item.entrega} (${item.tipo})</small></p>
-            <div class="progress-bar-container" style="background:#eee; height:8px; border-radius:4px; margin-top:10px;">
-                <div id="${idBarra}" class="progress-fill" style="height:100%; border-radius:4px; width:0%; transition: width 0.5s;"></div>
-            </div>
-        </div>
-    `;
-    contenedor.appendChild(div);
-    actualizarUnaBarra(idBarra, item.inicio, item.entrega);
-}
-
-function actualizarUnaBarra(id, inicio, entrega) {
+function setProgreso(id, inicio, entrega) {
     const hoy = new Date();
-    const fInicio = new Date(inicio);
-    const fEntrega = new Date(entrega);
+    const fIn = new Date(inicio);
+    const fOut = new Date(entrega);
+    const pct = Math.min(Math.max(((hoy - fIn) / (fOut - fIn)) * 100, 0), 100);
     
-    const porcentaje = ((hoy - fInicio) / (fEntrega - fInicio)) * 100;
-    const pEfectivo = Math.min(Math.max(porcentaje, 0), 100);
-    
-    const barra = document.getElementById(id);
-    if(barra) {
-        barra.style.width = pEfectivo + "%";
-        // Lógica de colores
-        if (pEfectivo > 90) barra.style.backgroundColor = "#f56565"; // Rojo
-        else if (pEfectivo > 50) barra.style.backgroundColor = "#ecc94b"; // Amarillo
-        else barra.style.backgroundColor = "#48bb78"; // Verde
+    const bar = document.getElementById(id);
+    if(bar) {
+        bar.style.width = pct + "%";
+        bar.style.backgroundColor = pct > 85 ? "#f56565" : pct > 50 ? "#ecc94b" : "#48bb78";
     }
 }
 
-function finalizarElemento(index) {
-    let datos = JSON.parse(localStorage.getItem("TaskSyncData")) || [];
+function finalizar(index) {
+    let datos = JSON.parse(localStorage.getItem("TaskSyncData"));
     datos[index].terminado = true;
     localStorage.setItem("TaskSyncData", JSON.stringify(datos));
     cargarDatosGuardados();
 }
 
-// --- 6. CALENDARIO ---
+function filterContent(tipo) {
+    showView('status-view');
+    document.getElementById('status-title').innerText = "Mis " + tipo.charAt(0).toUpperCase() + tipo.slice(1) + "s";
+    document.querySelectorAll('#active-projects-list .card').forEach(card => {
+        card.style.display = card.getAttribute('data-tipo') === tipo ? "block" : "none";
+    });
+}
+
 function generarDiasCalendario() {
     const grid = document.querySelector('.calendar-grid');
     if(!grid) return;
     grid.innerHTML = ""; 
-
+    let datos = JSON.parse(localStorage.getItem("TaskSyncData")) || [];
     for (let i = 1; i <= 31; i++) {
-        const day = document.createElement('div');
-        day.className = 'day';
-        day.innerText = i;
-
-        // Marcamos el 15 de Mayo (ejemplo)
-        if (i === 15) {
-            day.classList.add('active-event');
-            day.innerHTML += `<div class="event-line green" style="width:80%; height:4px; background:#48bb78; margin-top:4px;" onclick="alert('Proyecto: GymSync Pro')"></div>`;
-        }
-        grid.appendChild(day);
+        const diaContenedor = document.createElement('div');
+        diaContenedor.className = 'day';
+        diaContenedor.innerHTML = `<span>${i}</span>`;
+        const diaFormateado = `2026-05-${i.toString().padStart(2, '0')}`;
+        const tareasDelDia = datos.filter(item => item.entrega === diaFormateado);
+        tareasDelDia.forEach(tarea => {
+            const marca = document.createElement('div');
+            marca.className = tarea.tipo === 'proyecto' ? 'event-line rojo' : 'event-line verde';
+            marca.title = tarea.nombre; 
+            marca.style.width = "80%";
+            marca.style.height = "4px";
+            marca.style.marginTop = "2px";
+            marca.style.borderRadius = "2px";
+            marca.style.backgroundColor = tarea.tipo === 'proyecto' ? "#f56565" : "#48bb78";
+            diaContenedor.appendChild(marca);
+        });
+        grid.appendChild(diaContenedor);
     }
 }

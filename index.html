@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskSync - Gestión Pro</title>
+    <title>TaskSync - Gestión Universitaria</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,94 +11,100 @@
     <!-- NAVBAR -->
     <nav class="navbar">
         <div class="nav-container">
-            <div class="logo">
+            <div class="logo" onclick="showView('home-view')" style="cursor:pointer">
                 <img src="assets/logo.png" alt="TaskSync Logo">
                 <span>TaskSync</span>
             </div>
             <ul class="nav-menu">
-                <li>Proyectos</li>
-                <li>Tareas</li>
-                <li>Mi Equipo</li>
-                <li>Reportes</li>
+                <li onclick="filterContent('proyecto')">Proyectos</li>
+                <li onclick="filterContent('tarea')">Tareas</li>
             </ul>
             <div class="nav-icons">
                 <div class="icon-circle">👤</div>
-                <div class="icon-badge">🔔</div>
             </div>
         </div>
     </nav>
-    <!-- HERO SECTION - Ahora solo el escudo central -->
-<header class="hero">
-    <div class="hero-image-container">
-        <img src="assets/hero.jpeg" alt="TaskSync" class="hero-main-img">
-    </div>
-</header>
 
-<main class="main-content">
-    <!-- VISTA PRINCIPAL (MENÚ DE TARJETAS) -->
-    <section id="home-view" class="view active">
-        <div class="services-grid">
-            <!-- TARJETA 1: HISTORIAL (Gestión de Proyectos) -->
-            <div class="service-card" onclick="showView('history-view')">
-                <img src="assets/bloques.png" alt="Historial">
-                <h3>Historial de Tareas</h3>
-                <p>Consulta tus proyectos y tareas ya finalizados.</p>
-            </div>
-            <!-- TARJETA 2: ESTADO (Control de Tiempo) -->
-            <div class="service-card" onclick="showView('status-view')">
-                <img src="assets/reloj.png" alt="Estado">
-                <h3>Estado de Avance</h3>
-                <p>Monitorea barras de progreso y nombres de proyectos activos.</p>
-            </div>
-            <!-- TARJETA 3: CALENDARIO (Organización) -->
-            <div class="service-card" onclick="showView('calendar-view')">
-                <img src="assets/carpeta.png" alt="Calendario">
-                <h3>Calendario de Entregas</h3>
-                <p>Visualiza tus fechas límite de forma gráfica.</p>
-            </div>
+    <!-- HERO SECTION -->
+    <header class="hero">
+        <div class="hero-image-container">
+            <img src="assets/hero.jpeg" alt="TaskSync Central" class="hero-main-img">
         </div>
+    </header>
+
+    <main class="main-content">
         
-        <!-- BOTÓN FLOTANTE PARA CREAR (Para no saturar la vista) -->
-        <button class="fab-add" onclick="openModal()">+</button>
-    </section>
+        <!-- VISTA PRINCIPAL -->
+        <section id="home-view" class="view active">
+            <div class="services-grid">
+                <div class="service-card" onclick="showView('history-view')">
+                    <img src="assets/bloques.png" alt="Historial">
+                    <h3>Historial</h3>
+                    <p>Revisa tus actividades finalizadas.</p>
+                </div>
+                <div class="service-card" onclick="showView('status-view')">
+                    <img src="assets/reloj.png" alt="Estado">
+                    <h3>Estado de Avance</h3>
+                    <p>Barras de progreso en tiempo real.</p>
+                </div>
+                <div class="service-card" onclick="showView('calendar-view')">
+                    <img src="assets/carpeta.png" alt="Calendario">
+                    <h3>Calendario</h3>
+                    <p>Organiza tus entregas del mes.</p>
+                </div>
+            </div>
+        </section>
 
-    <!-- VISTA: HISTORIAL -->
-    <section id="history-view" class="view">
-        <button class="btn-back" onclick="showView('home-view')">← Volver</button>
-        <h2>Historial de Finalizados</h2>
-        <div id="history-list" class="list-container">
-            <!-- Se llena con JS -->
-            <p class="empty-msg">No hay proyectos terminados aún.</p>
-        </div>
-    </section>
+        <!-- VISTA: ESTADO DE AVANCE -->
+        <section id="status-view" class="view">
+            <div class="section-header">
+                <button class="btn-back" onclick="showView('home-view')">← Volver</button>
+                <h2 id="status-title">Actividades en Curso</h2>
+            </div>
+            <div id="active-projects-list" class="list-container"></div>
+        </section>
 
-    <!-- VISTA: ESTADO DE AVANCE -->
-    <section id="status-view" class="view">
-        <button class="btn-back" onclick="showView('home-view')">← Volver</button>
-        <h2>Proyectos en Curso</h2>
-        <div id="active-projects-list" class="list-container">
-            <!-- Ejemplo de cómo se verá -->
-            <div class="project-status-item">
-                <span>Proyecto BUAP: PIC18F4550</span>
-                <div class="progress-bar"><div class="progress-fill" style="width: 85%;"></div></div>
+        <!-- VISTA: HISTORIAL -->
+        <section id="history-view" class="view">
+            <button class="btn-back" onclick="showView('home-view')">← Volver</button>
+            <h2>Historial de Finalizados</h2>
+            <div id="history-list" class="list-container"></div>
+        </section>
+
+        <!-- VISTA: CALENDARIO -->
+        <section id="calendar-view" class="view">
+            <button class="btn-back" onclick="showView('home-view')">← Volver</button>
+            <div class="calendar-grid"></div>
+        </section>
+
+        <!-- BOTÓN FLOTANTE -->
+        <button class="fab-add" onclick="abrirModal()">+</button>
+    </main>
+
+    <!-- MODAL UNIFICADO -->
+    <div id="modalGenerico">
+        <div class="modal-content">
+            <h3>Nuevo Registro</h3>
+            
+            <label>¿Qué vas a agregar?</label>
+            <select id="tipoEntrada">
+                <option value="proyecto">Proyecto</option>
+                <option value="tarea">Tarea</option>
+            </select>
+
+            <label>Nombre del trabajo:</label>
+            <input type="text" id="nombreEntrada" placeholder="Ej: Laboratorio PIC18F4550">
+
+            <label>Fecha de entrega:</label>
+            <input type="date" id="fechaEntregaEntrada">
+
+            <div class="modal-btns">
+                <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+                <button class="btn-save" onclick="guardarDatos()">Guardar</button>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- VISTA: CALENDARIO -->
-    <section id="calendar-view" class="view">
-        <button class="btn-back" onclick="showView('home-view')">← Volver</button>
-        <h2>Calendario de Mayo 2026</h2>
-        <div class="calendar-grid">
-            <!-- Generación de días del 1 al 31 -->
-            <div class="day">1</div><div class="day">...</div>
-            <div class="day active-event" onclick="alert('Proyecto: GymSync Pro')">
-                15
-                <div class="event-line green"></div>
-            </div>
-        </div>
-    </section>
-</main>
-
+    <script src="script.js"></script>
 </body>
 </html>
