@@ -8,16 +8,33 @@
     <link rel="manifest" href="manifest.json">
 </head>
 <body>
-    <header>
-        <nav class="navbar">
-            <div class="logo">TaskSync</div>
-            <ul class="nav-links">
-                <li><a href="#" onclick="mostrarSeccion('dashboard')">Proyectos</a></li>
-                <li><a href="#" onclick="mostrarSeccion('historial')">Historial</a></li>
-                <li><a href="#">Mi Equipo</a></li>
-                <li><a href="#">Reportes</a></li>
-            </ul>
-        </nav>
+    <nav class="navbar">
+        <div class="logo">
+            <img src="https://img.icons8.com/ios-filled/50/2c3e50/shield.png" alt="Escudo">
+            <span>TaskSync</span>
+        </div>
+        <ul class="nav-links">
+            <li>Proyectos</li>
+            <li>Tareas</li>
+            <li>Mi Equipo</li>
+            <li>Reportes</li>
+        </ul>
+        <div class="user-icons">
+            <i class="icon-user"></i>
+            <i class="icon-bell"></i>
+        </div>
+    </nav>
+
+    <header class="hero-section">
+        <div class="hero-content">
+            <!-- Imagen central del escudo con el reloj -->
+            <div class="shield-container">
+                <img src="https://img.icons8.com/illustrations/external-pack-v-2-lineal-color-pack-v-2/500/external-Project-Management-business-pack-v-2-lineal-color-pack-v-2.png" alt="Organización Shield">
+            </div>
+            <div class="hero-actions">
+                <button class="btn-primary">Empieza Gratis</button>
+            </div>
+        </div>
     </header>
 
     <main class="dashboard">

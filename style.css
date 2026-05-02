@@ -1,16 +1,17 @@
 /* Configuración General */
 body {
-    font-family: 'Segoe UI', sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f7fafc;
+    color: var(--azul-oscuro);
     margin: 0;
-    background-color: #f4f7f6;
 }
-
 .navbar {
     display: flex;
     justify-content: space-between;
-    padding: 20px 50px;
-    background: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    align-items: center;
+    padding: 1rem 5%;
+    background: var(--blanco);
+    border-bottom: 2px solid var(--gris-borde);
 }
 
 /* Contenedor de la Barra de Proximidad */
@@ -25,8 +26,14 @@ body {
 
 /* La Barra Dinámica */
 .progress-bar {
+    background: #edf2f7;
+    height: 10px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+.progress-fill {
+    background: #38b2ac; /* Color turquesa de la imagen */
     height: 100%;
-    transition: width 0.5s ease, background-color 0.5s ease;
 }
 
 /* Estados de Urgencia */
@@ -35,13 +42,13 @@ body {
 .rojo { background-color: #e74c3c; }     /* ¡Urgente! */
 
 .card {
-    background: white;
-    padding: 20px;
+    background: var(--blanco);
+    border: 1px solid var(--gris-borde);
     border-radius: 12px;
+    padding: 20px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    width: 300px;
+    margin-bottom: 20px;
 }
-
 .btn-done {
     background-color: #34495e;
     color: white;
@@ -114,4 +121,45 @@ body {
     flex-wrap: wrap; /* Si no cabe, la columna de tareas se baja solita */
     gap: 30px;
     padding: 20px;
+}
+:root {
+    --azul-oscuro: #1a365d; /* Azul elegante tipo corporativo */
+    --azul-claro: #ebf8ff;
+    --blanco: #ffffff;
+    --gris-borde: #e2e8f0;
+}
+.logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--azul-oscuro);
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+}
+.hero-section {
+    background-color: var(--azul-claro);
+    padding: 40px 0;
+    text-align: center;
+    border-bottom-left-radius: 50% 20px;
+    border-bottom-right-radius: 50% 20px;
+}
+.shield-container img {
+    max-width: 400px;
+    height: auto;
+}
+.btn-primary {
+    background-color: #ed8936; /* Naranja para que resalte el botón como en la imagen */
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
 }
