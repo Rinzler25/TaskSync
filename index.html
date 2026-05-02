@@ -3,95 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskSync - Dashboard</title>
+    <title>TaskSync - Gestión Pro</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
 </head>
 <body>
+
+    <!-- NAVBAR -->
     <nav class="navbar">
-        <div class="logo">
-            <img src="https://img.icons8.com/ios-filled/50/2c3e50/shield.png" alt="Escudo">
-            <span>TaskSync</span>
-        </div>
-        <ul class="nav-links">
-            <li>Proyectos</li>
-            <li>Tareas</li>
-            <li>Mi Equipo</li>
-            <li>Reportes</li>
-        </ul>
-        <div class="user-icons">
-            <i class="icon-user"></i>
-            <i class="icon-bell"></i>
+        <div class="nav-container">
+            <div class="logo">
+                <img src="assets/logo.png" alt="TaskSync Logo">
+                <span>TaskSync</span>
+            </div>
+            <ul class="nav-menu">
+                <li>Proyectos</li>
+                <li>Tareas</li>
+                <li>Mi Equipo</li>
+                <li>Reportes</li>
+            </ul>
+            <div class="nav-icons">
+                <div class="icon-circle">👤</div>
+                <div class="icon-badge">🔔</div>
+            </div>
         </div>
     </nav>
 
-    <header class="hero-section">
-        <div class="hero-content">
-            <!-- Imagen central del escudo con el reloj -->
-            <div class="shield-container">
-                <img src="https://img.icons8.com/illustrations/external-pack-v-2-lineal-color-pack-v-2/500/external-Project-Management-business-pack-v-2-lineal-color-pack-v-2.png" alt="Organización Shield">
-            </div>
-            <div class="hero-actions">
-                <button class="btn-primary">Empieza Gratis</button>
-            </div>
+    <!-- HERO SECTION (CENTRAL) -->
+    <header class="hero">
+        <div class="hero-image-container">
+            <img src="assets/hero.jpeg" alt="Gestión de Tiempo" class="hero-main-img">
         </div>
+        <button class="btn-start">Empieza Gratis</button>
     </header>
 
-    <main class="dashboard">
-        <!-- SECCIÓN 1: DASHBOARD -->
-        <div id="vista-dashboard">
-            <section class="hero">
-                <h1>¡Toma Control de tu Tiempo!</h1>
-                <button class="btn-start">Empieza Gratis</button>
-            </section>
-
-            <div class="main-container">
-                <!-- Columna Izquierda -->
-                <div class="column-projects">
-                    <div class="section-header">
-                        <h2>Mis Proyectos</h2>
-                        <button class="btn-action" onclick="abrirModal('proyecto')">+ Nuevo Proyecto</button>
-                    </div>
-                    <div id="project-grid" class="project-grid"></div>
-                </div>
-
-                <!-- Columna Derecha -->
-                <div class="column-tasks">
-                    <div class="section-header">
-                        <h2>Tareas del Día</h2>
-                        <button class="btn-action" onclick="abrirModal('tarea')">+ Nueva Tarea</button>
-                    </div>
-                    <div id="quick-tasks-container" class="project-grid"></div>
-                </div>
+    <!-- SECCIÓN DE CONTENIDO -->
+    <main class="main-content">
+        <div class="section-header">
+            <h2>Sección de contenido</h2>
+            <div class="header-btns">
+                <button class="btn-outline">+ Nueva Tarea</button>
+                <button class="btn-outline">+ Nuevo Proyecto</button>
             </div>
         </div>
 
-        <!-- SECCIÓN 2: HISTORIAL -->
-        <div id="vista-historial" style="display: none;">
-            <section class="content">
-                <div class="section-header">
-                    <h2>Historial de Éxitos</h2>
-                    <p>Repaso de tus proyectos y tareas terminadas.</p>
-                </div>
-                <div id="history-grid" class="project-grid"></div>
-            </section>
+        <div class="content-grid">
+            <div class="card card-wide">
+                <div class="card-item"><input type="checkbox" checked> <strong>Proyecto Alpha</strong></div>
+                <div class="progress-bar"><div class="progress-fill green" style="width: 70%;"></div></div>
+                <div class="card-item"><input type="checkbox" checked> <strong>Proyecto Beta</strong></div>
+                <div class="progress-bar"><div class="progress-fill blue" style="width: 40%;"></div></div>
+            </div>
+            <div class="card card-small">
+                <div class="card-item"><input type="checkbox"> Proyecto Alpha</div>
+                <div class="card-item"><input type="checkbox"> Proyecto Beta</div>
+            </div>
         </div>
 
-        <!-- MODAL ÚNICO CORREGIDO -->
-        <div id="modalGenerico" class="modal">
-            <div class="modal-content">
-                <h3 id="tituloModal">Nueva Entrada</h3>
-                <input type="text" id="nombreEntrada" placeholder="Nombre...">
-                <label>Fecha de Entrega:</label>
-                <input type="date" id="fechaEntregaEntrada">
-                <div class="modal-actions">
-                    <button onclick="cerrarModal()">Cancelar</button>
-                    <button class="btn-start" id="btnGuardar">Guardar</button>
-                </div>
+        <!-- SECCIÓN DE SERVICIOS -->
+        <div class="section-header">
+            <h2>Sección de servicios o información</h2>
+        </div>
+
+        <div class="services-grid">
+            <div class="service-card">
+                <img src="assets/bloques.png" alt="Gestión">
+                <h3>Gestión de Proyectos</h3>
+                <p>Lorem ipsum dolor sit amet, cons, consctetuur altternia a netin enim eu consecteturs eat eromosa.</p>
+            </div>
+            <div class="service-card">
+                <img src="assets/reloj.png" alt="Tiempo">
+                <h3>Control de Tiempo</h3>
+                <p>Lorem ipsum dolor sit amet, cons, consctetuur altternia a netin enim eu consecteturs eat eromosa.</p>
+            </div>
+            <div class="service-card">
+                <img src="assets/carpeta.png" alt="Organización">
+                <h3>Organización</h3>
+                <p>Lorem ipsum dolor sit amet, cons, consctetuur altternia a netin enim eu consecteturs eat eromosa.</p>
             </div>
         </div>
     </main>
 
-    <script src="script.js"></script>
 </body>
 </html>
