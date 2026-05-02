@@ -1,162 +1,159 @@
 let tipoActual = ''; 
 
-// 1. ABRIR MODAL
+// --- 1. CARGA INICIAL ---
+window.onload = function() {
+    cargarDatosGuardados();
+    generarDiasCalendario();
+};
+
+// --- 2. NAVEGACIÓN ---
+function showView(viewId) {
+    // Ocultar todas las vistas
+    const views = document.querySelectorAll('.view');
+    views.forEach(v => v.classList.remove('active'));
+
+    // Mostrar la seleccionada
+    const view = document.getElementById(viewId);
+    if (view) {
+        view.classList.add('active');
+        window.scrollTo(0,0);
+    }
+}
+
+// --- 3. GESTIÓN DEL MODAL ---
 function abrirModal(tipo) {
     tipoActual = tipo;
     const modal = document.getElementById("modalGenerico");
     const titulo = document.getElementById("tituloModal");
-    titulo.innerText = tipo === 'proyecto' ? "Nuevo Proyecto" : "Nueva Tarea";
-    // Configurar el botón de guardar
-    document.getElementById("btnGuardar").onclick = guardarDatos;
-    modal.style.display = "flex";
+    if (modal && titulo) {
+        titulo.innerText = tipo === 'proyecto' ? "Nuevo Proyecto" : "Nueva Tarea";
+        modal.style.display = "flex";
+    }
 }
-// 2. CERRAR MODAL (Corregida para apuntar al ID correcto)
+
 function cerrarModal() {
     document.getElementById("modalGenerico").style.display = "none";
 }
-// 3. GUARDAR DATOS
+
+// --- 4. PERSISTENCIA Y DATOS ---
 function guardarDatos() {
     const nombre = document.getElementById("nombreEntrada").value;
     const entrega = document.getElementById("fechaEntregaEntrada").value;
     const inicio = new Date().toISOString().split('T')[0];
-    if (!nombre || !entrega) return alert("Completa los campos");
-    // Guardar el objeto en un array para el almacenamiento
-    const nuevoItem = { nombre, inicio, entrega, tipo: tipoActual };
-    if (tipoActual === 'proyecto') {
-        crearTarjetaProyecto(nombre, inicio, entrega);
-    } else {
-        crearTarjetaTarea(nombre, inicio, entrega);
-    }
-    // --- NUEVO: Guardar en la memoria del navegador ---
+
+    if (!nombre || !entrega) return alert("Por favor, completa los campos.");
+
+    const nuevoItem = { 
+        nombre, 
+        inicio, 
+        entrega, 
+        tipo: tipoActual,
+        terminado: false 
+    };
+
     salvarEnLocalStorage(nuevoItem);
+    
+    // Limpiar y cerrar
     document.getElementById("nombreEntrada").value = "";
     cerrarModal();
+    
+    // Actualizar vistas y mandarnos a ver el progreso
+    cargarDatosGuardados();
+    showView('status-view');
 }
 
-// 4. CREAR TARJETAS
-function crearTarjetaProyecto(nombre, inicio, entrega) {
-    const contenedor = document.getElementById("project-grid");
-    const idBarra = "bar-" + Date.now();
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `
-        <div class="card-body">
-            <h3>${nombre}</h3>
-            <p><small>Entrega: ${entrega}</small></p>
-            <div class="progress-container"><div id="${idBarra}" class="progress-bar"></div></div>
-            <div class="card-footer">
-                <button class="btn-done" onclick="finishProject(this)">Finalizar Proyecto</button>
-            </div>
-        </div>
-    `;
-    contenedor.appendChild(div);
-    actualizarUnaBarra(idBarra, inicio, entrega);
-}
-
-function crearTarjetaTarea(nombre, inicio, entrega) {
-    const contenedor = document.getElementById("quick-tasks-container");
-    const idBarra = "bar-" + Date.now();
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `
-        <div class="card-body">
-            <div style="display:flex; justify-content: space-between; align-items: center;">
-                <h4 style="margin:0">${nombre}</h4>
-                <input type="checkbox" onclick="finalizarTarea(this)" style="width:18px; height:18px;">
-            </div>
-            <p style="font-size:12px; margin: 5px 0;">Límite: ${entrega}</p>
-            <div class="progress-container"><div id="${idBarra}" class="progress-bar"></div></div>
-        </div>
-    `;
-    contenedor.appendChild(div);
-    actualizarUnaBarra(idBarra, inicio, entrega);
-}
-
-// 5. LÓGICA DE BARRAS (Tu lógica de días restantes)
-function actualizarUnaBarra(id, inicio, entrega) {
-    const hoy = new Date();
-    const fInicio = new Date(inicio);
-    const fEntrega = new Date(entrega);
-    const diferenciaMilisegundos = fEntrega - hoy;
-    const diasRestantes = diferenciaMilisegundos / (1000 * 60 * 60 * 24);
-    const porcentaje = ((hoy - fInicio) / (fEntrega - fInicio)) * 100;
-    const pEfectivo = Math.min(Math.max(porcentaje, 0), 100);
-    const barra = document.getElementById(id);
-    if(barra) {
-        barra.style.width = pEfectivo + "%";
-        if (diasRestantes <= 2) barra.className = "progress-bar rojo";
-        else if (diasRestantes <= 5) barra.className = "progress-bar amarillo";
-        else barra.className = "progress-bar verde";
-    }
-}
-// 6. FINALIZAR (Mover al historial)
-function finishProject(boton) {
-    const tarjeta = boton.closest('.card');
-    document.getElementById('history-grid').appendChild(tarjeta);
-    alert("Proyecto archivado.");
-}
-function finalizarTarea(checkbox) {
-    if (checkbox.checked) {
-        const tarjeta = checkbox.closest('.card');
-        setTimeout(() => {
-            document.getElementById('history-grid').appendChild(tarjeta);
-            tarjeta.style.opacity = "0.7";
-        }, 500);
-    }
-}
-// 7. NAVEGACIÓN
-function mostrarSeccion(seccion) {
-    document.getElementById('vista-dashboard').style.display = seccion === 'dashboard' ? 'block' : 'none';
-    document.getElementById('vista-historial').style.display = seccion === 'historial' ? 'block' : 'none';
-}
-function guardarEnNubeLocal() {
-    const proyectos = [];
-    const tareas = [];
-    // Extraemos datos de las tarjetas de proyectos
-    document.querySelectorAll("#project-grid .card").forEach(tarjeta => {
-        proyectos.push({
-            nombre: tarjeta.querySelector("h3").innerText,
-            entrega: tarjeta.querySelector("small").innerText.replace("Entrega: ", ""),
-            tipo: 'proyecto'
-        });
-    });
-    // Extraemos datos de las tarjetas de tareas
-    document.querySelectorAll("#quick-tasks-container .card").forEach(tarjeta => {
-        tareas.push({
-            nombre: tarjeta.querySelector("h4").innerText,
-            entrega: tarjeta.querySelector("p").innerText.replace("Límite: ", ""),
-            tipo: 'tarea'
-        });
-    });
-    // Guardamos ambos arreglos en el almacenamiento del navegador
-    localStorage.setItem("TaskSync_Proyectos", JSON.stringify(proyectos));
-    localStorage.setItem("TaskSync_Tareas", JSON.stringify(tareas));
-}
-window.onload = function() {
-    const proyectosGuardados = JSON.parse(localStorage.getItem("TaskSync_Proyectos")) || [];
-    const tareasGuardadas = JSON.parse(localStorage.getItem("TaskSync_Tareas")) || [];
-    proyectosGuardados.forEach(p => crearTarjetaProyecto(p.nombre, new Date().toISOString().split('T')[0], p.entrega));
-    tareasGuardadas.forEach(t => crearTarjetaTarea(t.nombre, new Date().toISOString().split('T')[0], t.entrega));
-};
-// Función para guardar
 function salvarEnLocalStorage(item) {
     let datos = JSON.parse(localStorage.getItem("TaskSyncData")) || [];
     datos.push(item);
     localStorage.setItem("TaskSyncData", JSON.stringify(datos));
 }
 
-// Función para cargar al abrir la app
 function cargarDatosGuardados() {
+    const contenedorEstado = document.getElementById("active-projects-list");
+    const contenedorHistorial = document.getElementById("history-list");
+    
+    if (!contenedorEstado || !contenedorHistorial) return;
+
+    contenedorEstado.innerHTML = "";
+    contenedorHistorial.innerHTML = "";
+
     let datos = JSON.parse(localStorage.getItem("TaskSyncData")) || [];
     
-    datos.forEach(item => {
-        if (item.tipo === 'proyecto') {
-            crearTarjetaProyecto(item.nombre, item.inicio, item.entrega);
+    datos.forEach((item, index) => {
+        if (item.terminado) {
+            renderizarTarjeta(item, index, contenedorHistorial);
         } else {
-            crearTarjetaTarea(item.nombre, item.inicio, item.entrega);
+            renderizarTarjeta(item, index, contenedorEstado);
         }
     });
 }
 
-// IMPORTANTE: Llamar a la carga cuando abra la página
-window.onload = cargarDatosGuardados;
+// --- 5. RENDERIZADO DE COMPONENTES ---
+function renderizarTarjeta(item, index, contenedor) {
+    const idBarra = "bar-" + index;
+    const div = document.createElement("div");
+    div.className = "card";
+    
+    // Si es del historial, le bajamos la opacidad
+    if (item.terminado) div.style.opacity = "0.7";
+
+    div.innerHTML = `
+        <div class="card-body">
+            <div style="display:flex; justify-content: space-between; align-items: center;">
+                <h3 style="margin:0">${item.nombre}</h3>
+                ${!item.terminado ? `<input type="checkbox" onclick="finalizarElemento(${index})">` : '✅'}
+            </div>
+            <p><small>Entrega: ${item.entrega} (${item.tipo})</small></p>
+            <div class="progress-bar-container" style="background:#eee; height:8px; border-radius:4px; margin-top:10px;">
+                <div id="${idBarra}" class="progress-fill" style="height:100%; border-radius:4px; width:0%; transition: width 0.5s;"></div>
+            </div>
+        </div>
+    `;
+    contenedor.appendChild(div);
+    actualizarUnaBarra(idBarra, item.inicio, item.entrega);
+}
+
+function actualizarUnaBarra(id, inicio, entrega) {
+    const hoy = new Date();
+    const fInicio = new Date(inicio);
+    const fEntrega = new Date(entrega);
+    
+    const porcentaje = ((hoy - fInicio) / (fEntrega - fInicio)) * 100;
+    const pEfectivo = Math.min(Math.max(porcentaje, 0), 100);
+    
+    const barra = document.getElementById(id);
+    if(barra) {
+        barra.style.width = pEfectivo + "%";
+        // Lógica de colores
+        if (pEfectivo > 90) barra.style.backgroundColor = "#f56565"; // Rojo
+        else if (pEfectivo > 50) barra.style.backgroundColor = "#ecc94b"; // Amarillo
+        else barra.style.backgroundColor = "#48bb78"; // Verde
+    }
+}
+
+function finalizarElemento(index) {
+    let datos = JSON.parse(localStorage.getItem("TaskSyncData")) || [];
+    datos[index].terminado = true;
+    localStorage.setItem("TaskSyncData", JSON.stringify(datos));
+    cargarDatosGuardados();
+}
+
+// --- 6. CALENDARIO ---
+function generarDiasCalendario() {
+    const grid = document.querySelector('.calendar-grid');
+    if(!grid) return;
+    grid.innerHTML = ""; 
+
+    for (let i = 1; i <= 31; i++) {
+        const day = document.createElement('div');
+        day.className = 'day';
+        day.innerText = i;
+
+        // Marcamos el 15 de Mayo (ejemplo)
+        if (i === 15) {
+            day.classList.add('active-event');
+            day.innerHTML += `<div class="event-line green" style="width:80%; height:4px; background:#48bb78; margin-top:4px;" onclick="alert('Proyecto: GymSync Pro')"></div>`;
+        }
+        grid.appendChild(day);
+    }
+}
