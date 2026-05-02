@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskSync - Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo">TaskSync</div>
+            <ul class="nav-links">
+                <li><a href="#" onclick="mostrarSeccion('dashboard')">Proyectos</a></li>
+                <li><a href="#" onclick="mostrarSeccion('historial')">Historial</a></li>
+                <li><a href="#">Mi Equipo</a></li>
+                <li><a href="#">Reportes</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="dashboard">
+        <!-- SECCIÓN 1: DASHBOARD -->
+        <div id="vista-dashboard">
+            <section class="hero">
+                <h1>¡Toma Control de tu Tiempo!</h1>
+                <button class="btn-start">Empieza Gratis</button>
+            </section>
+
+            <div class="main-container">
+                <!-- Columna Izquierda -->
+                <div class="column-projects">
+                    <div class="section-header">
+                        <h2>Mis Proyectos</h2>
+                        <button class="btn-action" onclick="abrirModal('proyecto')">+ Nuevo Proyecto</button>
+                    </div>
+                    <div id="project-grid" class="project-grid"></div>
+                </div>
+
+                <!-- Columna Derecha -->
+                <div class="column-tasks">
+                    <div class="section-header">
+                        <h2>Tareas del Día</h2>
+                        <button class="btn-action" onclick="abrirModal('tarea')">+ Nueva Tarea</button>
+                    </div>
+                    <div id="quick-tasks-container" class="project-grid"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: HISTORIAL -->
+        <div id="vista-historial" style="display: none;">
+            <section class="content">
+                <div class="section-header">
+                    <h2>Historial de Éxitos</h2>
+                    <p>Repaso de tus proyectos y tareas terminadas.</p>
+                </div>
+                <div id="history-grid" class="project-grid"></div>
+            </section>
+        </div>
+
+        <!-- MODAL ÚNICO CORREGIDO -->
+        <div id="modalGenerico" class="modal">
+            <div class="modal-content">
+                <h3 id="tituloModal">Nueva Entrada</h3>
+                <input type="text" id="nombreEntrada" placeholder="Nombre...">
+                <label>Fecha de Entrega:</label>
+                <input type="date" id="fechaEntregaEntrada">
+                <div class="modal-actions">
+                    <button onclick="cerrarModal()">Cancelar</button>
+                    <button class="btn-start" id="btnGuardar">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
